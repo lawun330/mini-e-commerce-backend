@@ -1,4 +1,10 @@
-import { PrismaClient, ProductStatus, OrderStatus, Role, Prisma } from '@prisma/client';
+import {
+  PrismaClient,
+  ProductStatus,
+  OrderStatus,
+  Role,
+  Prisma,
+} from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -40,8 +46,12 @@ async function main() {
     },
   });
 
-  const customerCart = await prisma.cart.create({ data: { userId: customer.id } });
-  const admin = await prisma.user.findUniqueOrThrow({ where: { email: 'admin@example.com' } });
+  const customerCart = await prisma.cart.create({
+    data: { userId: customer.id },
+  });
+  const admin = await prisma.user.findUniqueOrThrow({
+    where: { email: 'admin@example.com' },
+  });
   await prisma.cart.create({ data: { userId: admin.id } });
 
   const electronics = await prisma.category.create({
@@ -80,7 +90,13 @@ async function main() {
       categoryId: phones.id,
       variants: [
         { sku: 'NPX-128-BLK', name: '128GB Black', price: 799.0, stock: 25 },
-        { sku: 'NPX-256-SLV', name: '256GB Silver', price: 899.0, discountPrice: 849.0, stock: 15 },
+        {
+          sku: 'NPX-256-SLV',
+          name: '256GB Silver',
+          price: 899.0,
+          discountPrice: 849.0,
+          stock: 15,
+        },
       ],
     },
     {
@@ -89,8 +105,18 @@ async function main() {
       description: 'Compact phone for everyday use',
       categoryId: phones.id,
       variants: [
-        { sku: 'NPL-64-BLU', name: '64GB Blue', price: 399.0, stock: 40 },
-        { sku: 'NPL-128-GRN', name: '128GB Green', price: 449.0, stock: 30 },
+        {
+          sku: 'NPL-64-BLU',
+          name: '64GB Blue',
+          price: 399.0,
+          stock: 40,
+        },
+        {
+          sku: 'NPL-128-GRN',
+          name: '128GB Green',
+          price: 449.0,
+          stock: 30,
+        },
       ],
     },
     {
@@ -99,8 +125,19 @@ async function main() {
       description: 'Noise-cancelling over-ear headphones',
       categoryId: audio.id,
       variants: [
-        { sku: 'PWH-BLK', name: 'Matte Black', price: 199.0, discountPrice: 159.0, stock: 50 },
-        { sku: 'PWH-WHT', name: 'Pearl White', price: 199.0, stock: 35 },
+        {
+          sku: 'PWH-BLK',
+          name: 'Matte Black',
+          price: 199.0,
+          discountPrice: 159.0,
+          stock: 50,
+        },
+        {
+          sku: 'PWH-WHT',
+          name: 'Pearl White',
+          price: 199.0,
+          stock: 35,
+        },
       ],
     },
     {
@@ -121,7 +158,13 @@ async function main() {
       variants: [
         { sku: 'TEE-BLK-M', name: 'Black / M', price: 29.99, stock: 100 },
         { sku: 'TEE-BLK-L', name: 'Black / L', price: 29.99, stock: 80 },
-        { sku: 'TEE-WHT-M', name: 'White / M', price: 29.99, discountPrice: 24.99, stock: 60 },
+        {
+          sku: 'TEE-WHT-M',
+          name: 'White / M',
+          price: 29.99,
+          discountPrice: 24.99,
+          stock: 60,
+        },
       ],
     },
     {
@@ -175,15 +218,25 @@ async function main() {
   });
 
   const tee = createdProducts.find((p) => p.slug === 'classic-tee')!;
-  const headphones = createdProducts.find((p) => p.slug === 'pulse-wireless-headphones')!;
+  const headphones = createdProducts.find(
+    (p) => p.slug === 'pulse-wireless-headphones',
+  )!;
   const teeVariant = tee.variants[0];
   const headphoneVariant = headphones.variants[0];
 
   // leave an active cart for the demo customer
   await prisma.cartItem.createMany({
     data: [
-      { cartId: customerCart.id, productVariantId: teeVariant.id, quantity: 2 },
-      { cartId: customerCart.id, productVariantId: headphoneVariant.id, quantity: 1 },
+      {
+        cartId: customerCart.id,
+        productVariantId: teeVariant.id,
+        quantity: 2,
+      },
+      {
+        cartId: customerCart.id,
+        productVariantId: headphoneVariant.id,
+        quantity: 1,
+      },
     ],
   });
 
@@ -229,7 +282,8 @@ async function main() {
             productId: headphones.id,
             productVariantId: headphoneVariant.id,
             quantity: 1,
-            priceAtPurchase: headphoneVariant.discountPrice ?? headphoneVariant.price,
+            priceAtPurchase:
+              headphoneVariant.discountPrice ?? headphoneVariant.price,
           },
         ],
       },
@@ -240,7 +294,9 @@ async function main() {
   console.log('  admin:    admin@example.com / Password123!');
   console.log('  customer: customer@example.com / Password123!');
   console.log(`  products: ${createdProducts.length} published (+ 1 draft)`);
-  console.log(`  orders:   ${deliveredOrder.orderNumber} (DELIVERED), ORD-SEED-PENDING-002 (PENDING)`);
+  console.log(
+    `  orders:   ${deliveredOrder.orderNumber} (DELIVERED), ORD-SEED-PENDING-002 (PENDING)`,
+  );
 }
 
 main()

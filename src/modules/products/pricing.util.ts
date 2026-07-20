@@ -16,7 +16,10 @@ import { Decimal } from '@prisma/client/runtime/library';
  *      reflects whatever was active at the exact moment of purchase.
  */
 export function getEffectivePrice(
-  variant: Pick<ProductVariant, 'price' | 'discountPrice' | 'discountStartsAt' | 'discountEndsAt'>,
+  variant: Pick<
+    ProductVariant,
+    'price' | 'discountPrice' | 'discountStartsAt' | 'discountEndsAt'
+  >,
   now: Date = new Date(),
 ): Decimal {
   const hasDiscount = variant.discountPrice != null;
@@ -24,18 +27,23 @@ export function getEffectivePrice(
     return variant.price;
   }
 
-  const afterStart = !variant.discountStartsAt || variant.discountStartsAt <= now;
+  const afterStart =
+    !variant.discountStartsAt || variant.discountStartsAt <= now;
   const beforeEnd = !variant.discountEndsAt || variant.discountEndsAt >= now;
 
   return afterStart && beforeEnd ? variant.discountPrice! : variant.price;
 }
 
 export function isDiscountActive(
-  variant: Pick<ProductVariant, 'discountPrice' | 'discountStartsAt' | 'discountEndsAt'>,
+  variant: Pick<
+    ProductVariant,
+    'discountPrice' | 'discountStartsAt' | 'discountEndsAt'
+  >,
   now: Date = new Date(),
 ): boolean {
   if (variant.discountPrice == null) return false;
-  const afterStart = !variant.discountStartsAt || variant.discountStartsAt <= now;
+  const afterStart =
+    !variant.discountStartsAt || variant.discountStartsAt <= now;
   const beforeEnd = !variant.discountEndsAt || variant.discountEndsAt >= now;
   return afterStart && beforeEnd;
 }

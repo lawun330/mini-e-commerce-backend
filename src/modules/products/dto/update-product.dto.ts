@@ -1,6 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ProductStatus } from '@prisma/client';
-import { IsEnum, IsOptional, IsString, Matches, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  Matches,
+  MinLength,
+} from 'class-validator';
 
 export class UpdateProductDto {
   @ApiPropertyOptional()

@@ -117,10 +117,14 @@ export class CategoriesService {
     if (!category) throw new NotFoundException('Category not found');
 
     if (category._count.children > 0) {
-      throw new BadRequestException('Cannot delete a category that has subcategories');
+      throw new BadRequestException(
+        'Cannot delete a category that has subcategories',
+      );
     }
     if (category._count.products > 0) {
-      throw new BadRequestException('Cannot delete a category that still has products');
+      throw new BadRequestException(
+        'Cannot delete a category that still has products',
+      );
     }
 
     return this.prisma.category.delete({ where: { id } });
@@ -128,11 +132,14 @@ export class CategoriesService {
 
   private async assertSlugAvailable(slug: string) {
     const existing = await this.prisma.category.findUnique({ where: { slug } });
-    if (existing) throw new ConflictException('A category with this slug already exists');
+    if (existing)
+      throw new ConflictException('A category with this slug already exists');
   }
 
   private async assertParentExists(parentId: string) {
-    const parent = await this.prisma.category.findUnique({ where: { id: parentId } });
+    const parent = await this.prisma.category.findUnique({
+      where: { id: parentId },
+    });
     if (!parent) throw new BadRequestException('Parent category not found');
   }
 
@@ -153,7 +160,9 @@ export class CategoriesService {
     while (stack.length) {
       const current = stack.pop()!;
       if (current === newParentId) {
-        throw new BadRequestException('Cannot move a category under one of its descendants');
+        throw new BadRequestException(
+          'Cannot move a category under one of its descendants',
+        );
       }
       stack.push(...(childrenByParent.get(current) ?? []));
     }
@@ -161,7 +170,12 @@ export class CategoriesService {
 }
 
 function buildTree(
-  categories: { id: string; name: string; slug: string; parentId: string | null }[],
+  categories: {
+    id: string;
+    name: string;
+    slug: string;
+    parentId: string | null;
+  }[],
 ): CategoryNode[] {
   const nodes = new Map<string, CategoryNode>();
   for (const c of categories) {

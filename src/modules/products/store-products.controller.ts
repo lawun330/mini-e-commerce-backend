@@ -10,7 +10,10 @@ export class StoreProductsController {
 
   @Get()
   findPublished(@Query() query: PaginationQueryDto) {
-    return this.productsService.findPublished(query.page ?? 1, query.limit ?? 20);
+    return this.productsService.findPublished(
+      query.page ?? 1,
+      query.limit ?? 20,
+    );
   }
 
   @Get(':slug')

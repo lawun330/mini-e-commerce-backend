@@ -83,15 +83,22 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto) {
-    const category = await this.prisma.category.findUnique({ where: { id: dto.categoryId } });
+    const category = await this.prisma.category.findUnique({
+      where: { id: dto.categoryId },
+    });
     if (!category) throw new BadRequestException('Category not found');
 
-    const existingSlug = await this.prisma.product.findUnique({ where: { slug: dto.slug } });
-    if (existingSlug) throw new ConflictException('A product with this slug already exists');
+    const existingSlug = await this.prisma.product.findUnique({
+      where: { slug: dto.slug },
+    });
+    if (existingSlug)
+      throw new ConflictException('A product with this slug already exists');
 
     const skus = dto.variants.map((v) => v.sku);
     if (new Set(skus).size !== skus.length) {
-      throw new BadRequestException('Variant SKUs must be unique within the product');
+      throw new BadRequestException(
+        'Variant SKUs must be unique within the product',
+      );
     }
 
     try {
@@ -108,13 +115,20 @@ export class ProductsService {
               name: v.name,
               price: v.price,
               discountPrice: v.discountPrice,
-              discountStartsAt: v.discountStartsAt ? new Date(v.discountStartsAt) : undefined,
-              discountEndsAt: v.discountEndsAt ? new Date(v.discountEndsAt) : undefined,
+              discountStartsAt: v.discountStartsAt
+                ? new Date(v.discountStartsAt)
+                : undefined,
+              discountEndsAt: v.discountEndsAt
+                ? new Date(v.discountEndsAt)
+                : undefined,
               stock: v.stock,
             })),
           },
         },
-        include: { variants: true, category: { select: { id: true, name: true, slug: true } } },
+        include: {
+          variants: true,
+          category: { select: { id: true, name: true, slug: true } },
+        },
       });
       return this.withEffectivePrices(product);
     } catch (err: unknown) {
@@ -123,16 +137,23 @@ export class ProductsService {
   }
 
   async update(id: string, dto: UpdateProductDto) {
-    const product = await this.prisma.product.findFirst({ where: { id, deletedAt: null } });
+    const product = await this.prisma.product.findFirst({
+      where: { id, deletedAt: null },
+    });
     if (!product) throw new NotFoundException('Product not found');
 
     if (dto.slug && dto.slug !== product.slug) {
-      const taken = await this.prisma.product.findUnique({ where: { slug: dto.slug } });
-      if (taken) throw new ConflictException('A product with this slug already exists');
+      const taken = await this.prisma.product.findUnique({
+        where: { slug: dto.slug },
+      });
+      if (taken)
+        throw new ConflictException('A product with this slug already exists');
     }
 
     if (dto.categoryId) {
-      const category = await this.prisma.category.findUnique({ where: { id: dto.categoryId } });
+      const category = await this.prisma.category.findUnique({
+        where: { id: dto.categoryId },
+      });
       if (!category) throw new BadRequestException('Category not found');
     }
 
@@ -142,7 +163,9 @@ export class ProductsService {
         data: {
           ...(dto.name !== undefined && { name: dto.name }),
           ...(dto.slug !== undefined && { slug: dto.slug }),
-          ...(dto.description !== undefined && { description: dto.description }),
+          ...(dto.description !== undefined && {
+            description: dto.description,
+          }),
           ...(dto.status !== undefined && { status: dto.status }),
           ...(dto.categoryId !== undefined && { categoryId: dto.categoryId }),
         },
@@ -159,7 +182,9 @@ export class ProductsService {
 
   // soft-delete product + its variants so historical OrderItems stay intact
   async remove(id: string) {
-    const product = await this.prisma.product.findFirst({ where: { id, deletedAt: null } });
+    const product = await this.prisma.product.findFirst({
+      where: { id, deletedAt: null },
+    });
     if (!product) throw new NotFoundException('Product not found');
 
     const now = new Date();
@@ -177,7 +202,9 @@ export class ProductsService {
     return updated;
   }
 
-  private withEffectivePrices<T extends { variants: ProductVariant[] }>(product: T) {
+  private withEffectivePrices<T extends { variants: ProductVariant[] }>(
+    product: T,
+  ) {
     return {
       ...product,
       variants: product.variants.map((v) => ({

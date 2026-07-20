@@ -71,27 +71,27 @@ You can extend this schema with additional models or fields as needed.
 
 ### Auth (Public)
 
-| Method | Endpoint              | Description              |
-| ------ | --------------------- | ------------------------ |
-| POST   | `/auth/register`      | Register a new user      |
-| POST   | `/auth/login`         | Login and receive a JWT  |
-| GET    | `/auth/me`            | Get current user profile |
+| Method | Endpoint         | Description              |
+| ------ | ---------------- | ------------------------ |
+| POST   | `/auth/register` | Register a new user      |
+| POST   | `/auth/login`    | Login and receive a JWT  |
+| GET    | `/auth/me`       | Get current user profile |
 
 ### Store - Categories (Customer-facing)
 
-| Method | Endpoint                          | Description                         |
-| ------ | --------------------------------- | ----------------------------------- |
-| GET    | `/store/categories`               | List all categories (tree)          |
-| GET    | `/store/categories/:slug`         | Get category with its products      |
+| Method | Endpoint                  | Description                    |
+| ------ | ------------------------- | ------------------------------ |
+| GET    | `/store/categories`       | List all categories (tree)     |
+| GET    | `/store/categories/:slug` | Get category with its products |
 
 ### Admin - Categories
 
-| Method | Endpoint                       | Description                |
-| ------ | ------------------------------ | -------------------------- |
-| GET    | `/admin/categories`            | List all categories        |
-| POST   | `/admin/categories`            | Create a category          |
-| PATCH  | `/admin/categories/:id`        | Update a category          |
-| DELETE | `/admin/categories/:id`        | Delete a category          |
+| Method | Endpoint                | Description         |
+| ------ | ----------------------- | ------------------- |
+| GET    | `/admin/categories`     | List all categories |
+| POST   | `/admin/categories`     | Create a category   |
+| PATCH  | `/admin/categories/:id` | Update a category   |
+| DELETE | `/admin/categories/:id` | Delete a category   |
 
 ### Store - Products (Customer-facing)
 
@@ -112,42 +112,42 @@ You can extend this schema with additional models or fields as needed.
 
 ### Store - Cart (Customer-facing)
 
-| Method | Endpoint                    | Description                    |
-| ------ | --------------------------- | ------------------------------ |
-| GET    | `/store/cart`               | Get current user's cart        |
-| POST   | `/store/cart/items`         | Add an item to cart            |
-| PATCH  | `/store/cart/items/:id`     | Update cart item quantity      |
-| DELETE | `/store/cart/items/:id`     | Remove an item from cart       |
+| Method | Endpoint                | Description               |
+| ------ | ----------------------- | ------------------------- |
+| GET    | `/store/cart`           | Get current user's cart   |
+| POST   | `/store/cart/items`     | Add an item to cart       |
+| PATCH  | `/store/cart/items/:id` | Update cart item quantity |
+| DELETE | `/store/cart/items/:id` | Remove an item from cart  |
 
 ### Store - Orders (Customer-facing)
 
-| Method | Endpoint            | Description             |
-| ------ | ------------------- | ----------------------- |
-| POST   | `/store/orders`     | Place a new order       |
-| GET    | `/store/orders`     | List user's orders      |
-| GET    | `/store/orders/:id` | Get order details       |
+| Method | Endpoint            | Description        |
+| ------ | ------------------- | ------------------ |
+| POST   | `/store/orders`     | Place a new order  |
+| GET    | `/store/orders`     | List user's orders |
+| GET    | `/store/orders/:id` | Get order details  |
 
 ### Admin - Orders
 
-| Method | Endpoint                       | Description         |
-| ------ | ------------------------------ | ------------------- |
-| GET    | `/admin/orders`                | List all orders     |
-| GET    | `/admin/orders/:id`            | Get order details   |
-| PATCH  | `/admin/orders/:id/status`     | Update order status |
+| Method | Endpoint                   | Description         |
+| ------ | -------------------------- | ------------------- |
+| GET    | `/admin/orders`            | List all orders     |
+| GET    | `/admin/orders/:id`        | Get order details   |
+| PATCH  | `/admin/orders/:id/status` | Update order status |
 
 ### Store - Reviews (Customer-facing)
 
-| Method | Endpoint                          | Description                         |
-| ------ | --------------------------------- | ----------------------------------- |
-| GET    | `/store/products/:slug/reviews`   | List reviews for a product          |
-| POST   | `/store/products/:slug/reviews`   | Create a review for a product       |
+| Method | Endpoint                        | Description                   |
+| ------ | ------------------------------- | ----------------------------- |
+| GET    | `/store/products/:slug/reviews` | List reviews for a product    |
+| POST   | `/store/products/:slug/reviews` | Create a review for a product |
 
 ### Admin - Reviews
 
-| Method | Endpoint                    | Description              |
-| ------ | --------------------------- | ------------------------ |
-| GET    | `/admin/reviews`            | List all reviews         |
-| DELETE | `/admin/reviews/:id`        | Delete a review          |
+| Method | Endpoint             | Description      |
+| ------ | -------------------- | ---------------- |
+| GET    | `/admin/reviews`     | List all reviews |
+| DELETE | `/admin/reviews/:id` | Delete a review  |
 
 ---
 

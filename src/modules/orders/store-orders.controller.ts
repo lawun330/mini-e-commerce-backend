@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -14,7 +22,10 @@ export class StoreOrdersController {
   constructor(private ordersService: OrdersService) {}
 
   @Post()
-  placeOrder(@CurrentUser() user: { id: string }, @Body() _dto: CreateOrderDto) {
+  placeOrder(
+    @CurrentUser() user: { id: string },
+    @Body() _dto: CreateOrderDto,
+  ) {
     return this.ordersService.placeOrder(user.id);
   }
 

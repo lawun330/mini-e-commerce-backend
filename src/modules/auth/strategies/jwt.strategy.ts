@@ -12,7 +12,10 @@ export interface JwtPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(config: ConfigService, private prisma: PrismaService) {
+  constructor(
+    config: ConfigService,
+    private prisma: PrismaService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -24,7 +27,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   // trusting the payload blindly) so a deleted/disabled account is rejected
   // even if their old token hasn't expired yet.
   async validate(payload: JwtPayload) {
-    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
     if (!user) {
       throw new UnauthorizedException('User no longer exists');
     }

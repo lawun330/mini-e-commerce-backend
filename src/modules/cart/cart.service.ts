@@ -105,7 +105,9 @@ export class CartService {
       throw new NotFoundException('Product variant not found');
     }
     if (variant.product.status !== ProductStatus.PUBLISHED) {
-      throw new BadRequestException('This product is not available for purchase');
+      throw new BadRequestException(
+        'This product is not available for purchase',
+      );
     }
     if (variant.stock <= 0) {
       throw new BadRequestException(`"${variant.name}" is out of stock`);

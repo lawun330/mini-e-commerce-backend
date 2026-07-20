@@ -29,7 +29,10 @@ export class AdminProductsController {
 
   @Get()
   findAll(@Query() query: PaginationQueryDto) {
-    return this.productsService.findAllAdmin(query.page ?? 1, query.limit ?? 20);
+    return this.productsService.findAllAdmin(
+      query.page ?? 1,
+      query.limit ?? 20,
+    );
   }
 
   @Get(':id')

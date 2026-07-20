@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -7,7 +12,11 @@ import { CreateReviewDto } from './dto/create-review.dto';
 export class ReviewsService {
   constructor(private prisma: PrismaService) {}
 
-  async createForProductSlug(slug: string, userId: string, dto: CreateReviewDto) {
+  async createForProductSlug(
+    slug: string,
+    userId: string,
+    dto: CreateReviewDto,
+  ) {
     const product = await this.prisma.product.findUnique({ where: { slug } });
     if (!product || product.deletedAt) {
       throw new NotFoundException('Product not found');

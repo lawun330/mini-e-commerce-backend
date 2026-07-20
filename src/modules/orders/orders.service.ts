@@ -7,7 +7,10 @@ import {
 import { OrderStatus, Role, ProductStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getEffectivePrice } from '../products/pricing.util';
-import { assertRoleCanTransition, assertValidTransition } from './order-status.util';
+import {
+  assertRoleCanTransition,
+  assertValidTransition,
+} from './order-status.util';
 
 interface ActingUser {
   id: string;
@@ -53,10 +56,14 @@ export class OrdersService {
         });
 
         if (!variant || variant.deletedAt || variant.product.deletedAt) {
-          throw new BadRequestException(`A product in your cart is no longer available`);
+          throw new BadRequestException(
+            `A product in your cart is no longer available`,
+          );
         }
         if (variant.product.status !== ProductStatus.PUBLISHED) {
-          throw new BadRequestException(`A product in your cart is not available for purchase`);
+          throw new BadRequestException(
+            `A product in your cart is not available for purchase`,
+          );
         }
         if (variant.stock < item.quantity) {
           throw new BadRequestException(
@@ -120,7 +127,10 @@ export class OrdersService {
 
   async findAll() {
     return this.prisma.order.findMany({
-      include: { items: true, user: { select: { id: true, name: true, email: true } } },
+      include: {
+        items: true,
+        user: { select: { id: true, name: true, email: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -130,8 +140,14 @@ export class OrdersService {
    * /admin/orders/:id/status. Role-specific permission is checked here,
    * not duplicated per-controller.
    */
-  async updateStatus(orderId: string, newStatus: OrderStatus, actingUser: ActingUser) {
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+  async updateStatus(
+    orderId: string,
+    newStatus: OrderStatus,
+    actingUser: ActingUser,
+  ) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
     if (!order) throw new NotFoundException('Order not found');
 
     if (actingUser.role === Role.CUSTOMER && order.userId !== actingUser.id) {
