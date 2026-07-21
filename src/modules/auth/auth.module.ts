@@ -15,8 +15,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       useFactory: (config: ConfigService) => ({
         secret: config.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: (config.get<string>('JWT_EXPIRES_IN') ??
-            '1d') as `${number}d`,
+          // short-lived access JWT; refresh tokens renew the session
+          expiresIn: (config.get<string>('JWT_EXPIRES_IN') ?? '15m') as
+            `${number}m` | `${number}h` | `${number}d`,
         },
       }),
     }),

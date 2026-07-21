@@ -43,9 +43,23 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cart    Cart?
-  orders  Order[]
-  reviews Review[]
+  cart          Cart?
+  orders        Order[]
+  reviews       Review[]
+  refreshTokens RefreshToken[]
+}
+
+// opaque refresh tokens (hashed); rotated on each /auth/refresh use
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 // ------------------------------------------------------------------
