@@ -1,3 +1,14 @@
+/* Product lifecycle:
+ * - DRAFT     -> not visible on store; default on create
+ * - PUBLISHED -> visible on store (findPublished / findBySlug)
+ * - ARCHIVED  -> set on soft-delete (remove); not sold on store
+ *
+ * Notes:
+ * - Admin may set status via create/update (no hard transition map like orders).
+ * - Soft-delete sets deletedAt + status ARCHIVED.
+ * - Store queries only return PUBLISHED and deletedAt = null.
+ */
+
 import {
   BadRequestException,
   ConflictException,
@@ -14,6 +25,7 @@ import { getEffectivePrice, isDiscountActive } from './pricing.util';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
+  // STORE: find all published products with their category and variants
   async findPublished(page = 1, limit = 20) {
     const where = { status: ProductStatus.PUBLISHED, deletedAt: null };
     const [total, products] = await this.prisma.$transaction([
@@ -36,6 +48,7 @@ export class ProductsService {
     };
   }
 
+  // STORE: find a product by slug with its category and variants
   async findBySlug(slug: string) {
     const product = await this.prisma.product.findFirst({
       where: { slug, status: ProductStatus.PUBLISHED, deletedAt: null },
@@ -48,7 +61,8 @@ export class ProductsService {
     return this.withEffectivePrices(product);
   }
 
-  async findAllAdmin(page = 1, limit = 20) {
+  // ADMIN: find all products with their category and variants
+  async findAll(page = 1, limit = 20) {
     const where = { deletedAt: null };
     const [total, products] = await this.prisma.$transaction([
       this.prisma.product.count({ where }),
@@ -70,7 +84,8 @@ export class ProductsService {
     };
   }
 
-  async findOneAdmin(id: string) {
+  // ADMIN: find a product by id with its category and variants
+  async findOne(id: string) {
     const product = await this.prisma.product.findFirst({
       where: { id, deletedAt: null },
       include: {
@@ -82,6 +97,7 @@ export class ProductsService {
     return this.withEffectivePrices(product);
   }
 
+  // ADMIN: create a new product
   async create(dto: CreateProductDto) {
     const category = await this.prisma.category.findUnique({
       where: { id: dto.categoryId },
@@ -136,6 +152,7 @@ export class ProductsService {
     }
   }
 
+  // ADMIN: update an existing product
   async update(id: string, dto: UpdateProductDto) {
     const product = await this.prisma.product.findFirst({
       where: { id, deletedAt: null },
@@ -180,7 +197,7 @@ export class ProductsService {
     }
   }
 
-  // soft-delete product + its variants so historical OrderItems stay intact
+  // ADMIN: soft-delete an existing product and its variants so historical OrderItems stay intact
   async remove(id: string) {
     const product = await this.prisma.product.findFirst({
       where: { id, deletedAt: null },
@@ -202,6 +219,7 @@ export class ProductsService {
     return updated;
   }
 
+  // helper: add effective prices and discount status to a product and its variants
   private withEffectivePrices<T extends { variants: ProductVariant[] }>(
     product: T,
   ) {
@@ -216,6 +234,7 @@ export class ProductsService {
   }
 }
 
+// helper: throw a conflict exception if the error is a unique constraint violation, otherwise rethrow the error
 function throwUniqueOrRethrow(err: unknown, message: string): never {
   if (
     typeof err === 'object' &&

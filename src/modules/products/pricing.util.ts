@@ -1,7 +1,4 @@
-import { ProductVariant } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
-
-/**
+/* -- UTILITY --
  * Returns the price that should actually be charged for a variant right now.
  *
  * Rules:
@@ -10,11 +7,17 @@ import { Decimal } from '@prisma/client/runtime/library';
  *   active if `now` falls inside that window.
  * - discountPrice set with no dates -> treated as a manually toggled on/off discount.
  *
- * Called from two places only:
- *   1. Product/cart read paths, so customers see the real price before ordering.
- *   2. OrdersService.placeOrder(), INSIDE the transaction, so priceAtPurchase
+ * Called from:
+ *   1. ProductsService (product read paths) and CartService.loadCart(),
+ *      so customers see the real price before ordering.
+ *   2. OrdersService.placeOrder(), inside the transaction, so priceAtPurchase
  *      reflects whatever was active at the exact moment of purchase.
  */
+
+import { ProductVariant } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
+
+// helper: get the effective price for a variant
 export function getEffectivePrice(
   variant: Pick<
     ProductVariant,
@@ -34,6 +37,7 @@ export function getEffectivePrice(
   return afterStart && beforeEnd ? variant.discountPrice! : variant.price;
 }
 
+// helper: check if a discount is active for a variant
 export function isDiscountActive(
   variant: Pick<
     ProductVariant,

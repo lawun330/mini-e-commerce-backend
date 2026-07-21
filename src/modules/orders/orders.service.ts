@@ -21,13 +21,7 @@ interface ActingUser {
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
-  /**
-   * Places an order from the user's current cart.
-   *
-   * Everything below happens inside ONE transaction so that a stock failure
-   * on item 3 of 5 rolls back items 1 and 2 as well - the order either fully
-   * succeeds or doesn't exist at all.
-   */
+  // STORE: place order from cart // failure must roll back the entire transaction
   async placeOrder(userId: string) {
     return this.prisma.$transaction(async (tx) => {
       const cart = await tx.cart.findUnique({
@@ -39,8 +33,7 @@ export class OrdersService {
         throw new BadRequestException('Your cart is empty');
       }
 
-      // 1. Re-check stock and compute prices fresh from the DB - never trust
-      //    anything cached on the cart item or sent by the client.
+      // 1. re-check stock and compute prices fresh from the DB
       let total = 0;
       const orderItemsData: {
         productId: string;
@@ -82,14 +75,14 @@ export class OrdersService {
           priceAtPurchase: priceNumber,
         });
 
-        // 2. Deduct stock atomically as part of the same transaction.
+        // 2. deduct stock atomically as part of the same transaction
         await tx.productVariant.update({
           where: { id: variant.id },
           data: { stock: { decrement: item.quantity } },
         });
       }
 
-      // 3. Create the order + snapshot line items.
+      // 3. create the order + snapshot line items
       const order = await tx.order.create({
         data: {
           orderNumber: generateOrderNumber(),
@@ -101,13 +94,14 @@ export class OrdersService {
         include: { items: true },
       });
 
-      // 4. Clear the cart now that it has been converted into an order.
+      // 4. clear the cart now that it has been converted into an order
       await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
 
       return order;
     });
   }
 
+  // ADMIN: find an order by id with its line items
   async findOne(orderId: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
@@ -117,7 +111,18 @@ export class OrdersService {
     return order;
   }
 
-  async findForUser(userId: string) {
+  // STORE: find an order by id with its line items for the current user
+  async findOneForUser(orderId: string, userId: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { id: orderId, userId }, // never leak another user's order
+      include: { items: { include: { product: true, productVariant: true } } },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
+  }
+
+  // STORE: find all orders for the current user
+  async findAllForUser(userId: string) {
     return this.prisma.order.findMany({
       where: { userId },
       include: { items: true },
@@ -125,6 +130,7 @@ export class OrdersService {
     });
   }
 
+  // ADMIN: find all orders with their line items and user info
   async findAll() {
     return this.prisma.order.findMany({
       include: {
@@ -135,11 +141,7 @@ export class OrdersService {
     });
   }
 
-  /**
-   * Shared by both /store/orders/:id/status (customer cancel) and
-   * /admin/orders/:id/status. Role-specific permission is checked here,
-   * not duplicated per-controller.
-   */
+  // STORE/ADMIN: update the status of an order
   async updateStatus(
     orderId: string,
     newStatus: OrderStatus,
@@ -164,7 +166,7 @@ export class OrdersService {
         include: { items: true },
       });
 
-      // Restore stock when an order is cancelled.
+      // restore stock when an order is cancelled
       if (newStatus === OrderStatus.CANCELLED) {
         for (const item of updated.items) {
           await tx.productVariant.update({
@@ -179,6 +181,7 @@ export class OrdersService {
   }
 }
 
+// helper: generate a unique order number
 function generateOrderNumber(): string {
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const random = Math.random().toString(36).slice(2, 8).toUpperCase();

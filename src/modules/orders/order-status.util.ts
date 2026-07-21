@@ -1,19 +1,35 @@
+/* -- UTILITY --
+ * Validates order status transitions and who is allowed to make them.
+ *
+ * Structural rules (any role):
+ * - PENDING   -> CONFIRMED | CANCELLED
+ * - CONFIRMED -> SHIPPED   | CANCELLED
+ * - SHIPPED   -> DELIVERED (no cancel after shipping)
+ * - DELIVERED -> (terminal)
+ * - CANCELLED -> (terminal)
+ *
+ * Role-based rules:
+ * - ADMIN: any structurally valid transition above.
+ * - CUSTOMER: may only move to CANCELLED, and only from PENDING or CONFIRMED.
+ *
+ * Called from:
+ *   1. OrdersService.updateStatus(), before writing the new status (and
+ *      before restoring stock on cancel).
+ */
+
 import { OrderStatus, Role } from '@prisma/client';
 import { ForbiddenException, BadRequestException } from '@nestjs/common';
 
-// Map of current status -> statuses it's structurally allowed to move to.
-// This says nothing about WHO is allowed to trigger it - that's checked separately below.
+// all valid state transitions
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   PENDING: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
   CONFIRMED: [OrderStatus.SHIPPED, OrderStatus.CANCELLED],
-  SHIPPED: [OrderStatus.DELIVERED], // no cancelling once it has physically shipped
+  SHIPPED: [OrderStatus.DELIVERED],
   DELIVERED: [],
   CANCELLED: [],
 };
 
-/**
- * Throws if `from -> to` is not a legal transition at all (regardless of role).
- */
+// helper: throw if a state transition is not valid (regardless of role)
 export function assertValidTransition(
   from: OrderStatus,
   to: OrderStatus,
@@ -24,21 +40,17 @@ export function assertValidTransition(
   }
 }
 
-/**
- * Throws if this specific role is not allowed to perform this specific transition.
- * - CUSTOMER: may only cancel, and only from PENDING or CONFIRMED.
- * - ADMIN: may perform any transition that assertValidTransition() already allows.
- */
+// helper: throw if a role is not allowed to perform a state transition
 export function assertRoleCanTransition(
   role: Role,
   from: OrderStatus,
   to: OrderStatus,
 ): void {
   if (role === Role.ADMIN) {
-    return; // admins may perform any structurally valid transition
+    return; // ADMIN: perform any valid state transitions
   }
 
-  // CUSTOMER path
+  // STORE: cancel order while pending or confirmed only
   const customerCanCancelFrom: OrderStatus[] = [
     OrderStatus.PENDING,
     OrderStatus.CONFIRMED,

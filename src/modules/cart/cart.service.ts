@@ -13,11 +13,13 @@ import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 export class CartService {
   constructor(private prisma: PrismaService) {}
 
+  // STORE: get the cart for a user
   async getCart(userId: string) {
     const cart = await this.getOrCreateCart(userId);
     return this.loadCart(cart.id);
   }
 
+  // STORE: add a new item to the cart
   async addItem(userId: string, dto: AddCartItemDto) {
     const cart = await this.getOrCreateCart(userId);
     const variant = await this.assertPurchasableVariant(dto.productVariantId);
@@ -56,6 +58,7 @@ export class CartService {
     return this.loadCart(cart.id);
   }
 
+  // STORE: update an existing item in the cart
   async updateItem(userId: string, itemId: string, dto: UpdateCartItemDto) {
     const cart = await this.getOrCreateCart(userId);
     const item = await this.prisma.cartItem.findFirst({
@@ -78,6 +81,7 @@ export class CartService {
     return this.loadCart(cart.id);
   }
 
+  // STORE: remove an existing item from the cart
   async removeItem(userId: string, itemId: string) {
     const cart = await this.getOrCreateCart(userId);
     const item = await this.prisma.cartItem.findFirst({
@@ -89,12 +93,14 @@ export class CartService {
     return this.loadCart(cart.id);
   }
 
+  // helper: get the cart for a user, creating it if it doesn't exist
   private async getOrCreateCart(userId: string) {
     const existing = await this.prisma.cart.findUnique({ where: { userId } });
     if (existing) return existing;
     return this.prisma.cart.create({ data: { userId } });
   }
 
+  // helper: assert that a variant is purchasable
   private async assertPurchasableVariant(productVariantId: string) {
     const variant = await this.prisma.productVariant.findUnique({
       where: { id: productVariantId },
@@ -116,6 +122,7 @@ export class CartService {
     return variant;
   }
 
+  // helper: load a cart with its items and effective prices
   private async loadCart(cartId: string) {
     const cart = await this.prisma.cart.findUniqueOrThrow({
       where: { id: cartId },

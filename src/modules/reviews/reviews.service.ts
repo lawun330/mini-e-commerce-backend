@@ -12,6 +12,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 export class ReviewsService {
   constructor(private prisma: PrismaService) {}
 
+  // STORE: create a new review for a product
   async createForProductSlug(
     slug: string,
     userId: string,
@@ -22,7 +23,7 @@ export class ReviewsService {
       throw new NotFoundException('Product not found');
     }
 
-    // Eligibility: user must have at least one DELIVERED order containing this product.
+    // customer must have at least one DELIVERED order containing this product to review it
     const eligibleOrderItem = await this.prisma.orderItem.findFirst({
       where: {
         productId: product.id,
@@ -36,8 +37,7 @@ export class ReviewsService {
       );
     }
 
-    // @@unique([userId, productId]) on Review enforces this at the DB level too;
-    // we check here first to return a friendlier error than a raw constraint violation.
+    // customer can only review a product once
     const existing = await this.prisma.review.findUnique({
       where: { userId_productId: { userId, productId: product.id } },
     });
@@ -55,6 +55,7 @@ export class ReviewsService {
     });
   }
 
+  // STORE: find all reviews for a product
   async findForProductSlug(slug: string) {
     const product = await this.prisma.product.findUnique({ where: { slug } });
     if (!product) throw new NotFoundException('Product not found');
@@ -66,6 +67,7 @@ export class ReviewsService {
     });
   }
 
+  // ADMIN: find all reviews with their user and product info
   async findAll() {
     return this.prisma.review.findMany({
       include: {
@@ -76,6 +78,7 @@ export class ReviewsService {
     });
   }
 
+  // ADMIN: remove a review
   async remove(id: string) {
     const review = await this.prisma.review.findUnique({ where: { id } });
     if (!review) throw new NotFoundException('Review not found');

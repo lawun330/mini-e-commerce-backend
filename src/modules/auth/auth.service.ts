@@ -18,6 +18,7 @@ export class AuthService {
     private jwt: JwtService,
   ) {}
 
+  // register a new user
   async register(dto: RegisterDto) {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -32,13 +33,13 @@ export class AuthService {
       data: { email: dto.email, password: hashed, name: dto.name },
     });
 
-    // Every user gets an empty cart up front - keeps CartService simpler
-    // (it can always assume a cart row exists once a user is authenticated).
+    // every new user gets an empty cart up front once authenticated
     await this.prisma.cart.create({ data: { userId: user.id } });
 
     return this.issueToken(user.id, user.email, user.role);
   }
 
+  // login a user
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -55,6 +56,7 @@ export class AuthService {
     return this.issueToken(user.id, user.email, user.role);
   }
 
+  // get the current authenticated user
   async me(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -69,6 +71,7 @@ export class AuthService {
     return user;
   }
 
+  // issue a JWT token for the user
   private issueToken(sub: string, email: string, role: string) {
     const accessToken = this.jwt.sign({ sub, email, role });
     return { accessToken };

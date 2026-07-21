@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 
+// STORE endpoints for viewing products
 @ApiTags('Store - Products')
 @Controller('store/products')
 export class StoreProductsController {

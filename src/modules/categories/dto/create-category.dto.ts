@@ -1,18 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
+// DTO for creating a new category
 export class CreateCategoryDto {
   @ApiProperty()
   @IsString()
   @MinLength(1)
-  name: string;
+  name!: string;
 
   @ApiProperty({ example: 'electronics' })
   @IsString()
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message: 'slug must be lowercase alphanumeric with hyphens',
   })
-  slug: string;
+  slug!: string;
 
   @ApiPropertyOptional({ description: 'parent category id for nesting' })
   @IsOptional()

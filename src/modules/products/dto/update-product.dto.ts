@@ -8,6 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 
+// DTO for updating an existing product
 export class UpdateProductDto {
   @ApiPropertyOptional()
   @IsOptional()

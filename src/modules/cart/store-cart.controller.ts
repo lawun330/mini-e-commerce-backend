@@ -15,6 +15,7 @@ import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
+// STORE endpoints for managing the cart
 @ApiTags('Store - Cart')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)

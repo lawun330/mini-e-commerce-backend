@@ -8,6 +8,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
 
+// ADMIN endpoints for managing orders
 @ApiTags('Admin - Orders')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)

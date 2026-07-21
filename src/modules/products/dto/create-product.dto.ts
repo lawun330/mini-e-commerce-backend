@@ -16,21 +16,22 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+// DTO for creating a new product variant
 export class CreateProductVariantDto {
   @ApiProperty({ example: 'TEE-BLK-M' })
   @IsString()
   @MinLength(1)
-  sku: string;
+  sku!: string;
 
   @ApiProperty({ example: 'Black / M' })
   @IsString()
   @MinLength(1)
-  name: string;
+  name!: string;
 
   @ApiProperty({ example: 29.99 })
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  price: number;
+  price!: number;
 
   @ApiPropertyOptional({ example: 19.99 })
   @IsOptional()
@@ -51,21 +52,22 @@ export class CreateProductVariantDto {
   @ApiProperty({ example: 50 })
   @IsInt()
   @Min(0)
-  stock: number;
+  stock!: number;
 }
 
+// DTO for creating a new product
 export class CreateProductDto {
   @ApiProperty()
   @IsString()
   @MinLength(1)
-  name: string;
+  name!: string;
 
   @ApiProperty({ example: 'classic-tee' })
   @IsString()
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message: 'slug must be lowercase alphanumeric with hyphens',
   })
-  slug: string;
+  slug!: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -79,12 +81,12 @@ export class CreateProductDto {
 
   @ApiProperty()
   @IsString()
-  categoryId: string;
+  categoryId!: string;
 
   @ApiProperty({ type: [CreateProductVariantDto] })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateProductVariantDto)
-  variants: CreateProductVariantDto[];
+  variants!: CreateProductVariantDto[];
 }

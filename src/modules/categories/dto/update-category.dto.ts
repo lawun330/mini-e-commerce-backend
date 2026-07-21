@@ -7,6 +7,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 
+// DTO for updating an existing category
 export class UpdateCategoryDto {
   @ApiPropertyOptional()
   @IsOptional()
@@ -22,7 +23,7 @@ export class UpdateCategoryDto {
   })
   slug?: string;
 
-  // null clears parent (promote to root); omit leaves parent unchanged
+  // null clears parent (promotes to root); omit leaves parent unchanged
   @ApiPropertyOptional({ nullable: true })
   @IsOptional()
   @ValidateIf((_, v) => v !== null)

@@ -5,6 +5,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
+// STORE endpoints for managing reviews
 @ApiTags('Store - Reviews')
 @Controller('store/products/:slug/reviews')
 export class StoreReviewsController {

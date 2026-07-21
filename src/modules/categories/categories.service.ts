@@ -23,6 +23,7 @@ export type { CategoryNode };
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
+  // STORE: find all categories and build a tree structure
   async findTree(): Promise<CategoryNode[]> {
     const categories = await this.prisma.category.findMany({
       orderBy: { name: 'asc' },
@@ -30,6 +31,7 @@ export class CategoriesService {
     return buildTree(categories);
   }
 
+  // ADMIN: find all categories with their parent and product counts
   async findAll() {
     return this.prisma.category.findMany({
       include: {
@@ -40,15 +42,16 @@ export class CategoriesService {
     });
   }
 
+  // STORE: find a category by slug with its children and products
   async findBySlug(slug: string) {
     const category = await this.prisma.category.findUnique({
       where: { slug },
       include: {
         children: { orderBy: { name: 'asc' } },
         products: {
-          where: { status: ProductStatus.PUBLISHED, deletedAt: null },
+          where: { status: ProductStatus.PUBLISHED, deletedAt: null }, // only published products that are not soft-deleted
           include: {
-            variants: { where: { deletedAt: null } },
+            variants: { where: { deletedAt: null } }, // only variants that are not soft-deleted
           },
           orderBy: { name: 'asc' },
         },
@@ -58,6 +61,7 @@ export class CategoriesService {
     return category;
   }
 
+  // ADMIN: create a new category
   async create(dto: CreateCategoryDto) {
     await this.assertSlugAvailable(dto.slug);
     if (dto.parentId) await this.assertParentExists(dto.parentId);
@@ -75,6 +79,7 @@ export class CategoriesService {
     }
   }
 
+  // ADMIN: update an existing category
   async update(id: string, dto: UpdateCategoryDto) {
     const category = await this.prisma.category.findUnique({ where: { id } });
     if (!category) throw new NotFoundException('Category not found');
@@ -107,6 +112,7 @@ export class CategoriesService {
     }
   }
 
+  // ADMIN: delete an existing category
   async remove(id: string) {
     const category = await this.prisma.category.findUnique({
       where: { id },
@@ -130,12 +136,14 @@ export class CategoriesService {
     return this.prisma.category.delete({ where: { id } });
   }
 
+  // helper: check if a slug is available
   private async assertSlugAvailable(slug: string) {
     const existing = await this.prisma.category.findUnique({ where: { slug } });
     if (existing)
       throw new ConflictException('A category with this slug already exists');
   }
 
+  // helper: check if a parent category exists
   private async assertParentExists(parentId: string) {
     const parent = await this.prisma.category.findUnique({
       where: { id: parentId },
@@ -143,7 +151,7 @@ export class CategoriesService {
     if (!parent) throw new BadRequestException('Parent category not found');
   }
 
-  // prevent cycles: newParent must not already be under `id` in the tree
+  // helper: prevent cycles by checking if the new parent is not already a descendant of the current category
   private async assertNotDescendant(id: string, newParentId: string) {
     const all = await this.prisma.category.findMany({
       select: { id: true, parentId: true },
@@ -169,6 +177,7 @@ export class CategoriesService {
   }
 }
 
+// helper: build a tree structure from a list of categories
 function buildTree(
   categories: {
     id: string;
@@ -199,6 +208,7 @@ function buildTree(
   return roots;
 }
 
+// helper: throw a conflict exception if the error is a unique constraint violation, otherwise rethrow the error
 function throwUniqueOrRethrow(err: unknown, message: string): never {
   if (
     typeof err === 'object' &&

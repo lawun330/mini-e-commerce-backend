@@ -19,6 +19,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
+// ADMIN endpoints for managing products
 @ApiTags('Admin - Products')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -29,15 +30,12 @@ export class AdminProductsController {
 
   @Get()
   findAll(@Query() query: PaginationQueryDto) {
-    return this.productsService.findAllAdmin(
-      query.page ?? 1,
-      query.limit ?? 20,
-    );
+    return this.productsService.findAll(query.page ?? 1, query.limit ?? 20);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productsService.findOneAdmin(id);
+    return this.productsService.findOne(id);
   }
 
   @Post()

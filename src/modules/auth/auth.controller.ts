@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
+// authentication endpoints
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {

@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
+// ADMIN endpoints for managing categories
 @ApiTags('Admin - Categories')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)

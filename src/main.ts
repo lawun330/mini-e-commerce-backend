@@ -2,26 +2,30 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // set global prefix for all routes
   app.setGlobalPrefix('api/v1');
 
-  // whitelist strips unknown fields, forbidNonWhitelisted rejects requests that
-  // include them, transform coerces payloads into their DTO classes (so
-  // class-validator decorators and type coercion, e.g. string -> number, work).
+  // use global filters for all requests
+  app.useGlobalFilters(new PrismaExceptionFilter());
+
+  // use global pipes for all requests
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
+      whitelist: true, // strips unknown fields
+      forbidNonWhitelisted: true, // rejects requests that include them
+      transform: true, // transforms payloads into their DTO classes
     }),
   );
 
+  // configure Swagger
   const config = new DocumentBuilder()
-    .setTitle('Mini E-Commerce API')
-    .setDescription('Store + Admin API for products, cart, orders, and reviews')
+    .setTitle('Mini E-Commerce Backend API')
+    .setDescription('Backend API for products, cart, orders, and reviews')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -33,4 +37,4 @@ async function bootstrap() {
   console.log(`API running on http://localhost:${port}/api/v1`);
   console.log(`Swagger docs at http://localhost:${port}/api/docs`);
 }
-bootstrap();
+void bootstrap();
