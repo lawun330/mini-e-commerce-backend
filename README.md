@@ -15,9 +15,10 @@ NestJS + PostgreSQL + Prisma API for auth, categories, products, cart, orders, a
 ### URLs
 
 #### Render:
-- **Health**: http://localhost:3000/health
-- **Swagger**: http://localhost:3000/api/docs
-- **API**: http://localhost:3000/api/v1
+
+- **Health**: https://mini-e-commerce-backend-iq1z.onrender.com/health
+- **Swagger**: https://mini-e-commerce-backend-iq1z.onrender.com/api/docs
+- **API**: https://mini-e-commerce-backend-iq1z.onrender.com/api/v1
 
 #### Local:
 - **Health**: http://localhost:3000/health

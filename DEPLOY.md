@@ -18,7 +18,7 @@
 
 1. Push this repo to GitHub.
 
-2. Open [Render Dashboard](https://dashboard.render.com) → **New** → **Blueprint** → select the repo.
+2. Open [Render Dashboard](https://dashboard.render.com) → New → Blueprint → select the repo.
 
 3. When prompted for a blueprint name, use e.g. `mini-e-commerce-backend-blueprint`.
 
@@ -31,7 +31,7 @@
 
 6. Seed **once**:
 
-   **Option A**: Render Shell (web service → **Shell):
+   **Option A**: Render Shell (web service → Shell):
 
    ```bash
    # install seed tooling temporarily, then seed

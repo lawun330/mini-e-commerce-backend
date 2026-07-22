@@ -39,8 +39,11 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  console.log(`API running on http://localhost:${port}/api/v1`);
-  console.log(`Swagger docs at http://localhost:${port}/api/docs`);
-  console.log(`Health check at http://localhost:${port}/health`);
+
+  // Render sets RENDER_EXTERNAL_URL; locally fall back to localhost
+  const baseUrl = process.env.RENDER_EXTERNAL_URL ?? `http://localhost:${port}`;
+  console.log(`API running on ${baseUrl}/api/v1`);
+  console.log(`Swagger docs at ${baseUrl}/api/docs`);
+  console.log(`Health check at ${baseUrl}/health`);
 }
 void bootstrap();
