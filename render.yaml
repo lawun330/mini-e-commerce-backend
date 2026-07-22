@@ -5,6 +5,7 @@ databases:
     plan: free
     databaseName: ecommerce
     user: ecommerce
+    region: singapore
 
 services:
   - type: web
